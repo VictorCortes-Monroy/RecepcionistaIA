@@ -1,0 +1,26 @@
+services:
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+  api:
+    build:
+      context: ./apps/api
+    env_file:
+      - ./.env
+    ports: ["8000:8000"]
+    volumes:
+      - ./apps/api:/app
+    command: uvicorn main:APP --host 0.0.0.0 --port 8000 --reload
+    depends_on: [redis]
+    extra_hosts:
+      - "auqjhaeqqiwqyjcpgsxa.supabase.co:104.18.38.10"
+  web:
+    build:
+      context: ./apps/web
+    env_file:
+      - ./.env
+      - ./apps/web/.env.local
+    ports: ["3000:3000"]
+    volumes:
+      - ./apps/web:/app
+    command: npm run dev

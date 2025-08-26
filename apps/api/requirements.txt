@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings
+psycopg[binary,pool]
+redis
+openai
+langchain
+langchain-openai
+langchain-text-splitters
+pgvector

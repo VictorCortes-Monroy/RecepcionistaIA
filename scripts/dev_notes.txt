@@ -1,0 +1,94 @@
+# AURA Receptionist - Notas de Desarrollo
+
+## Configuración Inicial
+
+1. Crear archivos de entorno:
+   cp .env.example .env
+   cp apps/web/.env.example apps/web/.env.local
+
+2. Completar variables en .env:
+   - DATABASE_URL (Supabase remoto)
+   - OPENAI_API_KEY
+   - REDIS_URL=redis://redis:6379/0
+   - DEMO_CLINIC_ID=00000000-0000-0000-0000-000000000001
+
+3. Completar variables en apps/web/.env.local:
+   - NEXT_PUBLIC_SUPABASE_URL
+   - NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+## Comandos de Desarrollo
+
+# Levantar entorno
+docker compose up --build
+
+# Seed de conocimiento
+docker compose exec api python ingest_demo.py
+
+# Smoke test API
+curl -s http://localhost:8000/health
+curl -s http://localhost:8000/sim/message \
+  -H "Content-Type: application/json" \
+  -d '{"contact_name":"Carla","text":"precio depilación axilas"}'
+
+# Ver logs
+docker compose logs -f api
+docker compose logs -f web
+
+## Checklist de Configuración
+
+- [ ] .env con DATABASE_URL, OPENAI_API_KEY, REDIS_URL, DEMO_CLINIC_ID
+- [ ] apps/web/.env.local con NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY
+- [ ] Supabase RLS activo y usuario vinculado en user_accounts
+- [ ] Realtime en public.messages activo
+- [ ] Esquema Postgres cargado con tablas: contacts, conversations, messages, knowledge_docs, knowledge_chunks
+- [ ] pgvector extension habilitado en Supabase
+
+## Estructura del Proyecto
+
+```
+.
+├─ docker-compose.yml          # Entorno de desarrollo
+├─ .env.example               # Variables de entorno backend
+├─ .gitignore                 # Archivos a ignorar
+├─ README.md                  # Documentación
+├─ apps/
+│  ├─ api/                    # FastAPI backend
+│  │  ├─ Dockerfile
+│  │  ├─ requirements.txt
+│  │  ├─ main.py             # API endpoints
+│  │  └─ ingest_demo.py      # Seed conocimiento
+│  └─ web/                    # Next.js frontend
+│     ├─ Dockerfile
+│     ├─ package.json
+│     ├─ tsconfig.json
+│     ├─ next.config.js
+│     ├─ .env.example        # Variables frontend
+│     └─ app/
+│        ├─ layout.tsx       # Layout principal
+│        ├─ page.tsx         # Página home
+│        └─ inbox/page.tsx   # Inbox en vivo
+└─ scripts/
+   └─ dev_notes.txt          # Esta nota
+```
+
+## Endpoints API
+
+- GET /health - Health check
+- POST /sim/message - Simular mensaje de usuario
+- POST /knowledge/ingest - Cargar documento de conocimiento
+- POST /knowledge/search - Buscar en conocimiento
+
+## Flujo de Datos
+
+1. SimChannel → /sim/message → NLU → RAG → Respuesta → messages table
+2. Supabase Realtime → Inbox web en vivo
+3. Ingest → chunking → embeddings → knowledge_chunks
+
+## Próximos Pasos
+
+- [ ] Implementar NBO (Next Best Offer)
+- [ ] Agregar autenticación
+- [ ] Dashboard de analytics
+- [ ] Integración WhatsApp Cloud API
+- [ ] Sistema de citas real
+
