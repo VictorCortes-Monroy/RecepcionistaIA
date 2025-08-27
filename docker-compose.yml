@@ -23,4 +23,11 @@ services:
     ports: ["3000:3000"]
     volumes:
       - ./apps/web:/app
-    command: npm run dev
+  ngrok:
+    image: ngrok/ngrok:latest
+    ports: ["4040:4040"]
+    environment:
+      - NGROK_AUTHTOKEN=31mkG7jyb0zJkc0PnsIdeHcW5s2_79HQ6WZ5Fvz7juikB3VFa
+    command: http api:8000 --host-header=api:8000 --subdomain=aura-receptionist --log=stdout
+    depends_on: [api]
+    restart: unless-stopped

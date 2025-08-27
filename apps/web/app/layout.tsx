@@ -1,7 +1,27 @@
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import './globals.css'
+import Providers from '@/components/providers'
+
+const inter = Inter({ subsets: ['latin'] })
+
+export const metadata: Metadata = {
+  title: 'AURA Receptionist',
+  description: 'Plataforma SaaS para clínicas estéticas',
+}
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="es">
-      <body style={{ fontFamily: "ui-sans-serif, system-ui" }}>{children}</body>
+      <body className={inter.className}>
+        <Providers>
+          {children}
+        </Providers>
+      </body>
     </html>
   )
 }
